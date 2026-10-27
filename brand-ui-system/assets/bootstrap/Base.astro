@@ -1,0 +1,84 @@
+---
+import '../styles/global.css'
+import '@fontsource-variable/rubik'
+import { ClientRouter } from 'astro:transitions'
+
+interface Props {
+  title: string
+  description?: string
+}
+
+const { title, description = 'Brand UI starter' } = Astro.props
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Theme boot before first paint: one bootstrap, no flash, no split-brain. -->
+    <script is:inline>
+      ;(() => {
+        const stored = localStorage.getItem('theme')
+        const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.classList.toggle('dark', dark)
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        localStorage.setItem('theme', dark ? 'dark' : 'light')
+      })()
+    </script>
+
+    <ClientRouter />
+  </head>
+
+  <body class="bg-canvas text-ink relative min-h-screen font-sans antialiased">
+    <!-- System texture: circuit traces. Replace with your own traces. -->
+    <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-60">
+      <svg
+        class="content-auto h-full w-full"
+        viewBox="0 0 800 1200"
+        preserveAspectRatio="xMidYMin slice"
+        fill="none"
+        aria-hidden="true"
+      >
+        <g
+          stroke="var(--circuit-stroke)"
+          class="circuit-lines opacity-[var(--circuit-opacity)]"
+        >
+          <path d="M0,100 L200,100 L250,150 L500,150 L550,200 L800,200"></path>
+          <path d="M100,0 L100,200 L150,250 L150,500 L200,550 L200,600"></path>
+          <path d="M0,900 L300,900 L350,950 L600,950 L650,1000 L800,1000"></path>
+        </g>
+
+        <!-- Active traffic: the pulse is the system's signature motion.
+             Stagger the delays so the traces do not breathe in unison. -->
+        <g stroke="var(--circuit-stroke)" fill="none">
+          <path
+            class="circuit-pulse"
+            d="M0,100 L200,100 L250,150 L500,150 L550,200 L800,200"
+          ></path>
+          <path
+            class="circuit-pulse"
+            style="animation-delay: 2s"
+            d="M800,1200 L500,1200 L450,1150 L200,1150"></path>
+          <path
+            class="circuit-pulse"
+            style="animation-delay: 4.5s"
+            d="M100,0 L100,200 L150,250 L150,500"></path>
+        </g>
+      </svg>
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-[1440px]">
+      <main>
+        <slot />
+      </main>
+    </div>
+
+    <script>
+      import '../scripts/reveal'
+    </script>
+  </body>
+</html>

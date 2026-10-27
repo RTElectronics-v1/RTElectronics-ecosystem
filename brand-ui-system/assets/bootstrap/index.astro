@@ -1,0 +1,97 @@
+---
+import Base from '@layouts/Base.astro'
+import { Cpu, Layers, Server, ArrowRight } from 'lucide-astro'
+
+const services = [
+  {
+    title: 'Hardware & firmware',
+    copy: 'PCB multicapa, STM32 y ESP32, protocolos industriales.',
+    icon: Cpu,
+  },
+  {
+    title: 'Software & apps',
+    copy: 'Web, móvil y software empresarial a medida.',
+    icon: Layers,
+  },
+  {
+    title: 'Automatización',
+    copy: 'SCADA, HMI, PLCs y modernización de procesos.',
+    icon: Server,
+  },
+]
+---
+
+<Base title="Brand UI starter">
+  <section class="overflow-hidden pt-28 pb-20 md:pt-36">
+    <div class="mx-auto w-full max-w-7xl px-6">
+      <span
+        class="mb-6 inline-block rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-[10px] font-bold tracking-widest text-accent uppercase"
+        data-reveal
+      >
+        Sistema de marca
+      </span>
+
+      <h1
+        class="max-w-3xl text-4xl font-extrabold leading-[1.1] md:text-6xl"
+        data-reveal
+      >
+        Ingeniería con luz propia, <span class="text-gradient">sin plantilla</span>.
+      </h1>
+
+      <p class="text-ink-muted mt-6 max-w-2xl text-lg font-light leading-relaxed md:text-xl" data-reveal>
+        Punto de partida del ecosistema: tokens, vidrio, radios y movimiento ya cableados.
+      </p>
+
+      <div class="mt-10 flex flex-wrap gap-4" data-reveal>
+        <a
+          href="#servicios"
+          class="focus-ring inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 transition duration-300 hover:bg-primary-hover hover:scale-[1.02] active:scale-95 md:px-8 md:py-4"
+        >
+          Ver servicios
+          <ArrowRight class="h-4 w-4" aria-hidden="true" />
+        </a>
+        <a
+          href="#contacto"
+          class="focus-ring inline-flex items-center gap-2 rounded-2xl border border-line bg-surface px-6 py-3 text-sm font-bold text-ink transition-colors duration-300 hover:border-line-hover hover:bg-surface-hover md:px-8 md:py-4"
+        >
+          Contacto
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicios" class="border-t border-line py-24">
+    <div class="mx-auto w-full max-w-7xl px-6">
+      <h2 class="text-4xl font-extrabold md:text-5xl" data-reveal>
+        Tres disciplinas, <span class="text-gradient">un sistema</span>
+      </h2>
+      <p class="text-ink-muted mt-4 max-w-2xl text-lg font-light leading-relaxed" data-reveal>
+        Cada tarjeta usa el mismo radio, el mismo borde y la misma física.
+      </p>
+
+      <div class="mt-16 grid gap-6 md:grid-cols-3 md:gap-8">
+        {
+          services.map(({ title, copy, icon: Icon }, index) => (
+            <article
+              class="group flex h-full flex-col rounded-4xl border border-line bg-surface p-6 transition duration-500 hover:-translate-y-2 hover:border-primary/40 md:p-10"
+              data-reveal
+            >
+              {/* Float lives on the inner wrapper: an animation on transform would
+                  override the card's hover lift. */}
+              <div
+                class="lg:animate-float flex h-full flex-col"
+                style={`animation-delay: ${index * 0.6}s`}
+              >
+                <span class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-500 group-hover:scale-110">
+                  <Icon class="h-7 w-7" aria-hidden="true" />
+                </span>
+                <h3 class="mb-4 text-2xl font-bold">{title}</h3>
+                <p class="text-ink-muted font-light leading-relaxed">{copy}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>

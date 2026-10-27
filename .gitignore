@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.netlify/
+
+*.log
+.DS_Store
+Thumbs.db
+
+# ODD working notes stay on disk, not in the published repo.
+odd/
+
+# Local test project the maintainer keeps beside the skill (231 MB, own .git).
+rte-brand-skill-test/

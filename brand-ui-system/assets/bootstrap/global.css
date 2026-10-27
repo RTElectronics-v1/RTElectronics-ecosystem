@@ -1,0 +1,250 @@
+@import 'tailwindcss';
+
+/* One dark variant, driven by the class the theme toggle writes. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ── Canvas & surfaces ─────────────────────────────── */
+  --color-bg-body: #e6e6e6;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f3f4f6;
+
+  /* ── Ink ───────────────────────────────────────────── */
+  --color-text-main: #1a1a1a;
+  --color-text-muted: #5b6270;
+  --color-text-inverted: #ffffff;
+
+  /* ── Lines ─────────────────────────────────────────── */
+  --color-border: rgb(0 0 0 / 0.08);
+  --color-border-hover: rgb(119 23 255 / 0.3);
+
+  /* ── Brand fills ───────────────────────────────────── */
+  --color-primary: #6200ea;
+  --color-primary-light: #7c4dff;
+  --color-primary-dark: #3700b3;
+  --color-primary-hover: #7c4dff;
+  --color-secondary: #ede7f6;
+
+  /* ── Accent ink: the only violet legal as small text ── */
+  --color-accent: #6200ea;
+
+  /* ── Data palette ──────────────────────────────────── */
+  --color-chart-1: #6200ea;
+  --color-chart-2: #1a1a1a;
+  --color-chart-3: #5b6270;
+  --color-chart-4: #93979f;
+  --color-chart-5: #bcbec3;
+  --color-chart-line: #5b6270;
+  --color-chart-alert: #dc2626;
+
+  /* ── Glass ─────────────────────────────────────────── */
+  --glass-bg: rgb(255 255 255 / 0.7);
+  --glass-border: rgb(0 0 0 / 0.05);
+  --glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+
+  /* ── Circuit texture ───────────────────────────────── */
+  --circuit-stroke: #6200ea;
+  --circuit-opacity: 0.15;
+
+  /* ── Gradient tail for .text-gradient ──────────────── */
+  --gradient-tail: #00b0ff;
+
+  /* ── Type ──────────────────────────────────────────── */
+  --font-sans: 'Rubik Variable', Rubik, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+
+  /* ── Motion ────────────────────────────────────────── */
+  --ease-brand: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  /* ── Short aliases: prefer these in new code ───────── */
+  --color-canvas: var(--color-bg-body);
+  --color-surface: var(--color-bg-card);
+  --color-surface-hover: var(--color-bg-card-hover);
+  --color-ink: var(--color-text-main);
+  --color-ink-muted: var(--color-text-muted);
+  --color-line: var(--color-border);
+  --color-line-hover: var(--color-border-hover);
+}
+
+/* Dark is the canonical reading mode. */
+:root.dark,
+:root[data-theme='dark'] {
+  --color-bg-body: #0a0a0a;
+  --color-bg-card: #141414;
+  --color-bg-card-hover: #1f1f1f;
+
+  --color-text-main: #ffffff;
+  --color-text-muted: #9ea0af;
+  --color-text-inverted: #1a1a1a;
+
+  --color-border: rgb(255 255 255 / 0.08);
+  --color-border-hover: rgb(157 86 255 / 0.4);
+
+  --color-primary: #7717ff;
+  --color-primary-light: #9d56ff;
+  --color-primary-dark: #502faa;
+  --color-primary-hover: #502faa;
+  --color-secondary: #392178;
+
+  --color-accent: #9d56ff;
+
+  --color-chart-1: #9d56ff;
+  --color-chart-2: #ffffff;
+  --color-chart-3: #9ea0af;
+  --color-chart-4: #63646d;
+  --color-chart-5: #36373c;
+  --color-chart-line: #63646d;
+  --color-chart-alert: #f87171;
+
+  --glass-bg: rgb(20 20 20 / 0.6);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --glass-shadow: none;
+
+  --circuit-stroke: #9d56ff;
+  --circuit-opacity: 0.25;
+
+  --gradient-tail: #00f2ff;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes flow-pulse {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes data-flow {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@layer utilities {
+  .glassmorphism {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(135deg, var(--color-primary), var(--gradient-tail));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Add to every interactive element. Never ship outline-none alone. */
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-accent;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mask-linear-fade {
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+
+  /* One animated path per diagram, never more. */
+  .flow-line {
+    stroke-dasharray: 2 4;
+    animation: data-flow 1.2s linear infinite;
+  }
+
+  .glow-accent {
+    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-accent) 45%, transparent));
+  }
+}
+
+.circuit-lines {
+  stroke-width: 1.2;
+}
+
+/* The signature motion: a pulse travelling along a trace.
+   dasharray = 1000 means the visible segment is the whole path; the keyframes
+   slide it and fade both ends. */
+.circuit-pulse {
+  stroke-width: 2;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: flow-pulse 8s linear infinite;
+  will-change: stroke-dashoffset, opacity;
+}
+
+@media (max-width: 1024px) {
+  .circuit-lines {
+    stroke-width: 0.8;
+  }
+
+  .circuit-pulse {
+    stroke-width: 1.5;
+  }
+}
+
+/* Scroll reveal. Desktop only, so mobile never hides content behind JS. */
+@media (min-width: 768px) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s var(--ease-brand),
+      transform 0.8s var(--ease-brand);
+  }
+
+  [data-reveal].revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .animate-float,
+  .animate-pulse-slow,
+  .circuit-pulse,
+  .flow-line {
+    animation: none !important;
+  }
+}

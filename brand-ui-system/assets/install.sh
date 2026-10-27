@@ -109,6 +109,11 @@ install_to() {
     echo "  already at $dest (source), skipped"
     return
   fi
+  # A symlink here belongs to the user (dotfiles, another checkout): replace the
+  # link, never wipe the directory it points at.
+  if [ -L "$dest" ]; then
+    rm -f "$dest"
+  fi
   mkdir -p "$dest"
   rm -rf "$dest"/*
   cp -R "$SKILL_SRC"/. "$dest"/
@@ -234,5 +239,5 @@ Next step, in a new agent session with cwd = $TARGET:
   Build <your feature>.
 
 The skill is discoverable globally at:
-  ${BRAND_SKILL_HOME:-$HOME/.agents/skills}/brand-ui-system/SKILL.md
+  $CANONICAL/SKILL.md
 EOF

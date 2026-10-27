@@ -31,7 +31,7 @@
 #>
 [CmdletBinding()]
 param(
-  [Parameter(Position = 0)][string]$Target = '.'',
+  [Parameter(Position = 0)][string]$Target = '.',
   [ValidateSet('user', 'project', 'both')][string]$Scope = 'user',
   [string[]]$Agents = @(),
   [string]$From = '',
@@ -45,6 +45,15 @@ $ErrorActionPreference = 'Stop'
 function Step($text) { Write-Host "`n> $text" -ForegroundColor Cyan }
 function Fail($text) { Write-Host "  $text" -ForegroundColor Red; exit 1 }
 function Skip($text) { Write-Host "  $text" -ForegroundColor Yellow }
+
+function Remove-ReparsePoint([string]$path) {
+  # Windows PowerShell 5.1 throws NullReferenceException when Remove-Item meets
+  # a junction or symlink whose target is not empty. These calls delete only the
+  # link itself and never touch what it points at.
+  try { [IO.Directory]::Delete($path, $false); return } catch { }
+  try { [IO.File]::Delete($path); return } catch { }
+  Fail "cannot remove the existing link at $path; delete it by hand and retry"
+}
 
 $HOME_DIR = if ($env:BRAND_HOME) { $env:BRAND_HOME } else { $env:USERPROFILE }
 $SKILL_NAME = 'brand-ui-system'
@@ -94,6 +103,10 @@ function Install-Copy([string]$dest) {
     Write-Host "  already at $dest (source), skipped"
     return
   }
+  # A link here belongs to the user (dotfiles, another checkout): replace the
+  # link, never wipe the directory it points at.
+  $existing = Get-Item -LiteralPath $dest -Force -ErrorAction SilentlyContinue
+  if ($existing -and $existing.LinkType) { Remove-ReparsePoint $dest }
   New-Item -ItemType Directory -Force -Path $dest | Out-Null
   Get-ChildItem -Path $dest -Force | Remove-Item -Recurse -Force
   Copy-Item -Path (Join-Path $SkillSrc '*') -Destination $dest -Recurse -Force
@@ -107,7 +120,10 @@ $projectDest = Join-Path $Target ".agents\skills\$SKILL_NAME"
 # inside a project, or deleting the project would delete the skill.
 $wantAgents = @()
 if ($Agents.Count -gt 0) {
-  $wantAgents = if ($Agents -contains 'all') { @($AgentDirs.Keys) } else { $Agents }
+  # -File hands "pi,claude" over as ONE element while -Command splits it already,
+  # so normalise both call styles to a flat list.
+  $flat = @($Agents | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+  $wantAgents = if ($flat -contains 'all') { @($AgentDirs.Keys) } else { $flat }
   foreach ($a in $wantAgents) {
     if (-not $AgentDirs.Contains($a)) { Fail "unknown agent: $a (valid: $($AgentDirs.Keys -join ', '))" }
   }
@@ -142,10 +158,12 @@ if ($wantAgents.Count -gt 0) {
       continue
     }
 
-    if (Test-Path $link) {
-      $item = Get-Item $link -Force
+    # Get-Item -Force also sees a link whose target is gone; -LiteralPath keeps
+    # paths containing wildcard characters intact.
+    if (Get-Item -LiteralPath $link -Force -ErrorAction SilentlyContinue) {
+      $item = Get-Item -LiteralPath $link -Force
       if ($item.LinkType) {
-        Remove-Item $link -Force
+        Remove-ReparsePoint $link
       } elseif ($Force) {
         Remove-Item $link -Recurse -Force
       } else {
@@ -216,7 +234,7 @@ if ((-not $NoScaffold) -and (-not $SkipVerify)) {
 }
 
 # ── 6. handoff ──────────────────────────────────────────────────────────────
-$targetFull = (Resolve-Path $Target).Path
+$targetFull = if (Test-Path $Target) { (Resolve-Path $Target).Path } else { [IO.Path]::GetFullPath($Target) }
 
 Write-Host "`nOK ready" -ForegroundColor Green
 Write-Host @"

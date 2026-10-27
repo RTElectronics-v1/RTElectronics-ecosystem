@@ -29,7 +29,17 @@ git clone https://github.com/RTElectronics-v1/RTElectronics-ecosystem.git /tmp/r
 bash /tmp/rte-ecosystem/brand-ui-system/assets/install.sh ./mi-proyecto --agents all
 ```
 
-Both commands: install the skill for every agent, scaffold a project, run `npm install`, `astro check`, `build` and `brand-lint`.
+Both commands: install the skill for every agent, scaffold a project, run `npm install`, `astro check`, `build` and `brand-lint`. Run them from the folder that should hold `mi-proyecto`.
+
+On a retry the temp clone already exists and `git clone` refuses to overwrite it; update it instead of cloning again:
+
+```powershell
+git -C "$env:TEMP\rte-ecosystem" pull --ff-only
+```
+
+```bash
+git -C /tmp/rte-ecosystem pull --ff-only
+```
 
 ### Options
 
@@ -49,26 +59,49 @@ Windows gets a **directory junction**, Unix a **symlink**. If neither is availab
 
 ## Use it
 
-The skill activates on its own when a task matches its `description`. If your agent does not auto-discover skills, hand it the path.
+The skill activates on its own when a task matches its `description`. Every agent directory the installer links is a junction (Windows) or symlink (Unix) to one canonical copy at `$HOME/.agents/skills/brand-ui-system`, so an agent that discovers skills needs no path at all. If yours does not, hand it the canonical path through your shell's home variable — never a literal `C:\Users\<name>`:
 
-```text
-Leé C:\Users\reide\.agents\skills\brand-ui-system\SKILL.md y seguí su contrato.
-Armame la página de precios con tres planes.
+```powershell
+# PowerShell
+Leé $env:USERPROFILE\.agents\skills\brand-ui-system\SKILL.md y seguí su contrato.
 ```
 
-### Four examples
+```bash
+# Git Bash, macOS, Linux
+Leé ~/.agents/skills/brand-ui-system/SKILL.md y seguí su contrato.
+```
 
-**A landing page.** Prompt: *"Armame la página de precios con tres planes y una comparativa de features."*
-The agent routes to `astro-components.md`, copies the card and section-header anatomy, builds with `rounded-4xl`, one accent, one shadow, `data-reveal`, then runs the linter. You get components, not a template.
+Same copy, one entry point per agent (use `$env:USERPROFILE` in PowerShell, `~` in bash):
 
-**A dashboard.** Prompt: *"Dashboard de telemetría: tres KPIs, una sparkline por sensor y una tabla."*
-Routes to `astro-components.md` + `diagrams-and-charts.md`. Uses `chart-1` for the datum you are arguing about and the neutral ladder for context. Charts are CSS and SVG, no chart library.
+| Agent | Path to the same `SKILL.md` |
+| --- | --- |
+| shared discovery (`agents`) | `~/.agents/skills/brand-ui-system/SKILL.md` |
+| pi | `~/.pi/agent/skills/brand-ui-system/SKILL.md` |
+| claude | `~/.claude/skills/brand-ui-system/SKILL.md` |
+| codex | `~/.codex/skills/brand-ui-system/SKILL.md` |
+| gemini | `~/.gemini/skills/brand-ui-system/SKILL.md` |
+| copilot | `~/.copilot/skills/brand-ui-system/SKILL.md` |
 
-**An architecture diagram.** Prompt: *"Diagrama del flujo Edge → Gateway → Ingesta → Base de datos."*
-Routes to `diagrams-and-charts.md`. Builds `DiagramNode` + `DiagramCanvas` on a fixed 2:1 canvas (`1cqw = 10` viewBox units) with one animated `.flow-line`. No measured JS connectors.
+In PowerShell `~` is not expanded inside native commands, so use
+`$env:USERPROFILE\.pi\agent\skills\brand-ui-system\SKILL.md` and so on.
 
-**A deck.** Prompt: *"Un deck de 8 slides para presentar el caso GRC-PCP 2000."*
+### Four things to ask for
+
+All four assume the prompt block above and a `cwd` inside the scaffolded project. The skill activates on the trigger words in its `description` — *landing*, *dashboard*, *diagram*, *chart*, *slide deck* — so the path is only for agents that do not auto-discover skills. Each task reads two references, never more.
+
+**1. A web page.** Prompt: *"Armame la página de precios con tres planes y una comparativa de features."*
+Routes to `astro-components.md` + `tailwind-and-tokens.md`. Copies the card and section-header anatomy, builds with `rounded-4xl`, one accent, one shadow, `data-reveal`, then runs the linter. You get components, not a template.
+
+**2. A diagram.** Prompt: *"Diagrama del flujo Edge → Gateway → Ingesta → Base de datos."*
+Routes to `diagrams-and-charts.md` + tokens. Builds `DiagramNode` + `DiagramCanvas` on a fixed 2:1 canvas (`1cqw = 10` viewBox units) with one animated `.flow-line`. No measured JS connectors, no diagram library.
+
+**3. A web page with diagrams.** Prompt: *"Dashboard de telemetría: tres KPIs, una sparkline por sensor y un diagrama de arquitectura del pipeline."*
+Routes to `astro-components.md` then `diagrams-and-charts.md` — the *Dashboard* row. Uses `chart-1` for the datum you are arguing about and the neutral ladder for context, with charts written as CSS and SVG inside the same page shell. The same row covers a landing page that ships an architecture diagram.
+
+**4. A presentation.** Prompt: *"Un deck de 8 slides para presentar el caso GRC-PCP 2000."*
 Routes to `presentations-deck.md`. 16:9, dark, projection type scale (28px body minimum), cover + bento + technical + metrics layouts, Marp or Reveal output.
+
+The routing table knows two more combinations: *a page that also ships a deck* (ask for the page, then the deck — page row, then `presentations-deck.md`), and *auditing existing UI*, which reads the hard rules and the exclusion table only and reports without redesigning.
 
 ### What the agent is required to do
 
@@ -91,6 +124,7 @@ Routes to `presentations-deck.md`. 16:9, dark, projection type scale (28px body 
 | `assets/bootstrap/` | Runnable starter: tokens, layout, golden-path page, configs |
 | `assets/brand-lint.mjs` | Deterministic checker for the exclusion table, 0 dependencies |
 | `assets/install.sh` · `install.ps1` | Install for one or many agents, scaffold, run the gate |
+| `assets/tests/` | Offline installer probes: parse, re-run, agent list, linked canonical |
 
 ---
 
@@ -124,6 +158,12 @@ After changing the skill, refresh the installed copies:
 ```bash
 bash brand-ui-system/assets/install.sh --no-scaffold --agents all
 ```
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File brand-ui-system\assets\install.ps1 -NoScaffold -Agents all
+```
+
+Both are re-runnable: an existing junction is replaced, its target is never touched.
 
 ### Versioning
 

@@ -99,7 +99,7 @@ Routes to `diagrams-and-charts.md` + tokens. Builds `DiagramNode` + `DiagramCanv
 Routes to `astro-components.md` then `diagrams-and-charts.md` — the *Dashboard* row. Uses `chart-1` for the datum you are arguing about and the neutral ladder for context, with charts written as CSS and SVG inside the same page shell. The same row covers a landing page that ships an architecture diagram.
 
 **4. A presentation.** Prompt: *"Un deck de 8 slides para presentar el caso GRC-PCP 2000."*
-Routes to `presentations-deck.md`. 16:9, dark, projection type scale (28px body minimum), cover + bento + technical + metrics layouts, Marp or Reveal output.
+Routes to `presentations-deck.md` + tokens. 16:9, dark, projection type scale (28px body minimum), cover + bento + technical + metrics layouts, Marp or Reveal output.
 
 The routing table knows two more combinations: *a page that also ships a deck* (ask for the page, then the deck — page row, then `presentations-deck.md`), and *auditing existing UI*, which reads the hard rules and the exclusion table only and reports without redesigning.
 

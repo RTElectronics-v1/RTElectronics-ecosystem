@@ -15,6 +15,10 @@ Skill version: **1.6**
 
 One canonical copy, junctioned into every agent. Update once, all agents see it.
 
+### Requirements
+
+`git` and Node **18.20 / 20.3 / 22+** on the `PATH`. Nothing else: the repository is public, so the clone needs no credentials and no GitHub login.
+
 ### Windows (PowerShell)
 
 ```powershell
@@ -40,6 +44,15 @@ git -C "$env:TEMP\rte-ecosystem" pull --ff-only
 ```bash
 git -C /tmp/rte-ecosystem pull --ff-only
 ```
+
+### If it stops
+
+| Symptom | Cause and fix |
+| --- | --- |
+| `-File … no existe` / `cannot find the path` | The clone failed, so the script is not there. Run the `git clone` line alone and read its error before the second command. |
+| `npm not found` | Node is missing or not on the `PATH`. Install 18.20 / 20.3 / 22+ and re-run. |
+| `… already has a package.json` | The target folder holds a project. Pick another folder, or pass `-Force` to overwrite it. |
+| `unknown agent: …` | Typo in `-Agents`. Valid: `agents pi claude codex gemini copilot all`. |
 
 ### Options
 
